@@ -57,8 +57,19 @@
     pos.y = BALL_Y;
   }
 
+  function pointerClientXY(e) {
+    if (e.changedTouches && e.changedTouches.length) {
+      return {
+        x: e.changedTouches[0].clientX,
+        y: e.changedTouches[0].clientY,
+      };
+    }
+    return { x: e.clientX, y: e.clientY };
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     var scene = document.querySelector("a-scene");
+    if (!scene) return;
     if (!scene.hasLoaded) {
       scene.addEventListener("loaded", init);
     } else {
@@ -82,10 +93,12 @@
         statusEl.classList.remove("searching", "locked");
         if (searching) {
           statusEl.classList.add("searching");
-          statusEl.textContent = "Searching for Hiro marker… hold it steady and lit.";
+          statusEl.textContent =
+            "Searching for Hiro marker… hold it steady, bright, and large in view.";
         } else {
           statusEl.classList.add("locked");
-          statusEl.textContent = "Field locked — tap on the video to aim your shot.";
+          statusEl.textContent =
+            "Field locked — tap or click on the video to aim your shot.";
         }
       }
 
@@ -114,6 +127,7 @@
 
       function kickFromPointer(clientX, clientY) {
         if (!markerLocked || !scene.camera) return;
+        if (clientX === undefined || clientY === undefined) return;
         var now = performance.now();
         if (now - lastKickAt < 180) return;
         lastKickAt = now;
@@ -121,8 +135,10 @@
         var canvas = scene.canvas;
         if (!canvas) return;
         var rect = canvas.getBoundingClientRect();
-        ndc.x = ((clientX - rect.left) / rect.width) * 2 - 1;
-        ndc.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+        var w = rect.width || 1;
+        var h = rect.height || 1;
+        ndc.x = ((clientX - rect.left) / w) * 2 - 1;
+        ndc.y = -((clientY - rect.top) / h) * 2 + 1;
 
         raycaster.setFromCamera(ndc, scene.camera);
 
@@ -165,10 +181,19 @@
           requestAnimationFrame(bindCanvas);
           return;
         }
-        canvas.addEventListener("pointerdown", function (e) {
+
+        function onKickInput(e) {
           if (e.button !== undefined && e.button !== 0) return;
-          kickFromPointer(e.clientX, e.clientY);
-        });
+          var pt = pointerClientXY(e);
+          kickFromPointer(pt.x, pt.y);
+        }
+
+        if (window.PointerEvent) {
+          canvas.addEventListener("pointerdown", onKickInput);
+        } else {
+          canvas.addEventListener("touchstart", onKickInput, { passive: true });
+          canvas.addEventListener("mousedown", onKickInput);
+        }
       }
       bindCanvas();
 
