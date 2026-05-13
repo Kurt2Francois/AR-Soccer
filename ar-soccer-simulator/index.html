@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>AR Soccer Simulator</title>
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ar.js@3.4.7/aframe/build/aframe-ar.min.js"></script>
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; overflow: hidden; touch-action: none; }
+    #hud {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+      padding: 12px 16px 20px;
+      background: linear-gradient(transparent, rgba(0,0,0,.78));
+      color: #fff; pointer-events: none; text-align: center;
+    }
+    #hud strong { font-size: 1.25rem; }
+    #hud p { margin: 6px 0 0; font-size: 0.85rem; opacity: 0.92; }
+    #hud a { color: #9cf; pointer-events: auto; }
+    #score { font-variant-numeric: tabular-nums; }
+  </style>
+</head>
+<body>
+  <div id="hud">
+    <strong>AR Soccer</strong>
+    <p>Show the <a href="https://jeromeetienne.github.io/AR.js/data/images/HIRO.jpg" target="_blank" rel="noopener">Hiro marker</a> to the camera · Tap the pitch to shoot toward the goal</p>
+    <p>Goals: <span id="score">0</span> · Shots: <span id="shots">0</span></p>
+  </div>
+
+  <a-scene
+    embedded
+    vr-mode-ui="enabled: false"
+    renderer="logarithmicDepthBuffer: true; antialias: true"
+    arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
+  >
+    <a-assets>
+      <a-mixin id="goal-post" geometry="primitive: cylinder; radius: 0.03; height: 0.34" material="color: #eaeaea; metalness: 0.15; roughness: 0.65"></a-mixin>
+    </a-assets>
+
+    <a-marker preset="hiro">
+      <!-- Horizontal pitch: Y is up from the marker -->
+      <a-plane
+        class="kick-plane"
+        position="0 0 0"
+        rotation="-90 0 0"
+        width="1.6"
+        height="1"
+        material="color: #2a8f47; roughness: 0.92"
+      ></a-plane>
+
+      <a-ring
+        radius-inner="0.014"
+        radius-outer="0.019"
+        position="0 0.002 0.28"
+        rotation="-90 0 0"
+        material="color: #fff; opacity: 0.85; transparent: true"
+      ></a-ring>
+
+      <a-entity id="goal" position="0 0 -0.44">
+        <a-box
+          id="goal-sensor"
+          class="goal-zone"
+          width="0.42"
+          height="0.24"
+          depth="0.1"
+          position="0 0.12 0"
+          visible="false"
+        ></a-box>
+        <a-box width="0.44" height="0.28" depth="0.02" position="0 0.14 0" material="color: #fff; opacity: 0.2; transparent: true; side: double"></a-box>
+        <a-entity mixin="goal-post" position="-0.2 0.17 0"></a-entity>
+        <a-entity mixin="goal-post" position="0.2 0.17 0"></a-entity>
+        <a-box width="0.45" height="0.035" depth="0.03" position="0 0.34 0" material="color: #ddd"></a-box>
+      </a-entity>
+
+      <a-sphere
+        id="ball"
+        radius="0.042"
+        position="0 0.042 0.28"
+        material="color: #f5f5f5; roughness: 0.4"
+      ></a-sphere>
+    </a-marker>
+
+    <a-entity
+      camera
+      raycaster="objects: .kick-plane; far: 50"
+      cursor="rayOrigin: mouse; fuse: false"
+    ></a-entity>
+  </a-scene>
+
+  <script src="game.js"></script>
+</body>
+</html>
