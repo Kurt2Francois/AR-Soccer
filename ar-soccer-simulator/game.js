@@ -125,6 +125,53 @@
 
       setStatus(true);
 
+      var rearStreamAttached = false;
+      function tryAttachRearCameraIfMobile() {
+        if (rearStreamAttached) return;
+        if (new URLSearchParams(location.search).get("rear") === "0") return;
+        var ua = navigator.userAgent || "";
+        var mobile =
+          /Android|iPhone|iPad|iPod|Mobile|webOS|BlackBerry|IEMobile|Opera Mini/i.test(ua) ||
+          (navigator.maxTouchPoints > 1 && /Macintosh/.test(ua));
+        if (!mobile) return;
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
+        var v = scene.querySelector("video");
+        if (!v) return;
+
+        navigator.mediaDevices
+          .getUserMedia({
+            video: {
+              facingMode: { ideal: "environment" },
+              width: { ideal: 1280 },
+              height: { ideal: 720 },
+            },
+            audio: false,
+          })
+          .then(function (stream) {
+            if (rearStreamAttached) {
+              stream.getTracks().forEach(function (t) {
+                t.stop();
+              });
+              return;
+            }
+            rearStreamAttached = true;
+            var prev = v.srcObject;
+            if (prev && prev.getTracks) {
+              prev.getTracks().forEach(function (t) {
+                t.stop();
+              });
+            }
+            v.srcObject = stream;
+            v.setAttribute("playsinline", "true");
+            v.setAttribute("webkit-playsinline", "true");
+            v.muted = true;
+            return v.play();
+          })
+          .catch(function () {});
+      }
+      window.setTimeout(tryAttachRearCameraIfMobile, 1200);
+      window.setTimeout(tryAttachRearCameraIfMobile, 2800);
+
       function kickFromPointer(clientX, clientY) {
         if (!markerLocked || !scene.camera) return;
         if (clientX === undefined || clientY === undefined) return;
