@@ -150,7 +150,10 @@
     <p>Goals: <span id="score">0</span> · Shots: <span id="shots">0</span></p>
     <p id="mode-line"></p>
     <button type="button" id="toggle-camera-mode">Switch camera mode &amp; reload</button>
-    <p id="hint">Black screen? Use the button above. No printer? Use a second device for the marker.</p>
+    <p id="hint">
+      <strong>Phone:</strong> allow the camera, then point the <strong>back camera</strong> at the Hiro square (not a selfie).
+      <strong>HTTPS</strong> (Vercel) is required. If it never turns green, try <strong>Switch camera mode</strong> below.
+    </p>
   </div>
 
   <div id="ar-root"></div>
@@ -234,12 +237,18 @@
         useDomVideo ? "domBackground: true" : "domBackground: false"
       );
       scene.setAttribute("renderer", "logarithmicDepthBuffer: false; antialias: true; alpha: true");
-      scene.setAttribute(
-        "arjs",
-        "trackingMethod: best; sourceType: webcam; videoTexture: " +
-          (useDomVideo ? "false" : "true") +
-          "; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
-      );
+      var arjsParts = [
+        "trackingMethod: best",
+        "sourceType: webcam",
+        "videoTexture: " + (useDomVideo ? "false" : "true"),
+        "debugUIEnabled: false",
+        "detectionMode: mono_and_matrix",
+        "matrixCodeType: 3x3",
+      ];
+      if (isProbablyPhoneOrTablet()) {
+        arjsParts.push("sourceWidth: 960", "sourceHeight: 720");
+      }
+      scene.setAttribute("arjs", arjsParts.join("; ") + ";");
 
       var tpl = document.getElementById("ar-scene-children");
       scene.appendChild(document.importNode(tpl.content, true));
