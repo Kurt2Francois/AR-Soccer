@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>Hiro marker — show this screen to your phone</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: #0a0a0a;
+      color: #ddd;
+      font-family: system-ui, sans-serif;
+    }
+    .wrap {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      gap: 16px;
+    }
+    img {
+      width: min(92vmin, 560px);
+      height: min(92vmin, 560px);
+      object-fit: contain;
+      background: #fff;
+      border: 8px solid #fff;
+      box-shadow: 0 0 0 4px #111;
+    }
+    p {
+      max-width: 36rem;
+      margin: 0;
+      text-align: center;
+      line-height: 1.45;
+      font-size: 0.95rem;
+    }
+    kbd {
+      background: #222;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <img
+      src="https://jeromeetienne.github.io/AR.js/data/images/HIRO.jpg"
+      alt="Hiro AR marker"
+      width="512"
+      height="512"
+      crossorigin="anonymous"
+    />
+    <p>
+      <strong>Use two devices.</strong> Keep this page open on a <strong>laptop, TV, or second phone</strong>
+      (full brightness, lights on, no “night mode”). On your main phone, open your AR Soccer app and
+      <strong>point the camera at this square</strong> from about 25–40&nbsp;cm away until the green “field locked” message appears.
+      Press <kbd>F11</kbd> on a PC for fullscreen.
+    </p>
+  </div>
+</body>
+</html>
