@@ -2,81 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>AR Soccer (DOM camera)</title>
-  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@ar-js-org/ar.js@3.4.7/aframe/build/aframe-ar.js"></script>
-  <script>
-    (function () {
-      if (typeof AFRAME === "undefined") return;
-      if (AFRAME.components["ar-webcam-fix"]) return;
-      AFRAME.registerComponent("ar-webcam-fix", {
-        schema: { domBackground: { type: "boolean", default: true } },
-        tick: function () {
-          if (!this.data.domBackground) return;
-          var el = this.el;
-          var r = el && el.renderer;
-          if (!r) return;
-          r.setClearColor(0x000000, 0);
-          if (el.object3D) el.object3D.background = null;
-        },
-      });
-    })();
-  </script>
-  <style>
-    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; touch-action: none; background: #000; }
-    a-scene { width: 100% !important; height: 100% !important; display: block; position: fixed !important; top: 0; left: 0; z-index: 0; }
-    a-scene .a-canvas { background: transparent !important; }
-    .a-canvas, video { object-fit: cover !important; }
-    .arjs-video, video.arjs-video { opacity: 1 !important; visibility: visible !important; }
-    #hud {
-      position: fixed; left: 0; right: 0; bottom: 0; z-index: 100; padding: 10px 14px 16px;
-      background: linear-gradient(transparent, rgba(0,0,0,.88)); color: #fff; pointer-events: none; text-align: center;
-    }
-    #ar-status {
-      position: fixed; top: 10px; left: 50%; transform: translateX(-50%); z-index: 100; max-width: 92vw;
-      padding: 8px 14px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; pointer-events: none; text-align: center;
-    }
-    #ar-status.searching { background: rgba(120, 40, 40, 0.92); color: #fff; }
-    #ar-status.locked { background: rgba(30, 100, 50, 0.92); color: #fff; }
-    #hud strong { font-size: 1.2rem; }
-    #hud p { margin: 5px 0 0; font-size: 0.82rem; opacity: 0.95; }
-    #hud a { color: #9cf; pointer-events: auto; }
-    #hint { margin-top: 6px; font-size: 0.78rem; opacity: 0.88; }
-  </style>
+  <meta http-equiv="refresh" content="0; url=index.html?dom=1" />
+  <title>Redirect…</title>
 </head>
 <body>
-  <div id="ar-status" class="searching">Searching for Hiro marker…</div>
-  <div id="hud">
-    <strong>AR Soccer</strong> <span style="opacity:0.85">(DOM camera)</span>
-    <p>Same game as index — webcam is a normal video under the canvas. If this works better on your PC, use this file.</p>
-    <p>Goals: <span id="score">0</span> · Shots: <span id="shots">0</span></p>
-    <p id="hint"><a href="index.html" style="pointer-events:auto">Back to main index.html</a></p>
-  </div>
-
-  <a-scene
-    embedded
-    vr-mode-ui="enabled: false"
-    ar-webcam-fix="domBackground: true"
-    renderer="logarithmicDepthBuffer: false; antialias: true; alpha: true"
-    arjs="trackingMethod: best; sourceType: webcam; videoTexture: false; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
-  >
-    <a-assets>
-      <a-mixin id="goal-post" geometry="primitive: cylinder; radius: 0.03; height: 0.34" material="color: #eaeaea; metalness: 0.15; roughness: 0.65"></a-mixin>
-    </a-assets>
-    <a-marker id="hiro-marker" preset="hiro" emitevents="true">
-      <a-plane class="kick-plane" position="0 0 0" rotation="-90 0 0" width="1.6" height="1" material="color: #2a8f47; roughness: 0.85; shader: flat"></a-plane>
-      <a-ring radius-inner="0.014" radius-outer="0.019" position="0 0.002 0.28" rotation="-90 0 0" material="color: #fff; opacity: 0.9; transparent: true; shader: flat"></a-ring>
-      <a-entity id="goal" position="0 0 -0.44">
-        <a-box width="0.44" height="0.28" depth="0.02" position="0 0.14 0" material="color: #fff; opacity: 0.35; transparent: true; side: double; shader: flat"></a-box>
-        <a-entity mixin="goal-post" position="-0.2 0.17 0"></a-entity>
-        <a-entity mixin="goal-post" position="0.2 0.17 0"></a-entity>
-        <a-box width="0.45" height="0.035" depth="0.03" position="0 0.34 0" material="color: #ddd; shader: flat"></a-box>
-      </a-entity>
-      <a-sphere id="ball" radius="0.045" position="0 0.045 0.28" material="color: #f8f8f8; roughness: 0.45; shader: flat"></a-sphere>
-    </a-marker>
-    <a-entity camera></a-entity>
-  </a-scene>
-  <script src="game.js"></script>
+  <p><a href="index.html?dom=1">Continue to AR Soccer (DOM camera mode)</a></p>
+  <script>window.location.replace("index.html?dom=1");</script>
 </body>
 </html>
