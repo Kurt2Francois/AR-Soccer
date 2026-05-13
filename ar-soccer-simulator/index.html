@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a3d1a" />
   <title>AR Soccer Simulator</title>
   <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@ar-js-org/ar.js@3.4.7/aframe/build/aframe-ar.js"></script>
@@ -10,16 +11,8 @@
     (function () {
       if (typeof AFRAME === "undefined") return;
       if (AFRAME.components["ar-webcam-fix"]) return;
-      /**
-       * When videoTexture is FALSE, the real <video> sits under the WebGL canvas and you must
-       * clear with alpha 0 or the feed goes black after one frame.
-       * When videoTexture is TRUE, AR.js paints the camera inside WebGL — a transparent clear
-       * wipes that pass and the whole screen goes black. So only run the fix in "DOM video" mode.
-       */
       AFRAME.registerComponent("ar-webcam-fix", {
-        schema: {
-          domBackground: { type: "boolean", default: true },
-        },
+        schema: { domBackground: { type: "boolean", default: true } },
         tick: function () {
           if (!this.data.domBackground) return;
           var el = this.el;
@@ -39,10 +32,15 @@
       overflow: hidden;
       touch-action: none;
       background: #000;
+      -webkit-text-size-adjust: 100%;
+    }
+    body {
+      min-height: 100dvh;
     }
     a-scene {
       width: 100% !important;
       height: 100% !important;
+      min-height: 100dvh;
       display: block;
       position: fixed !important;
       top: 0;
@@ -51,6 +49,7 @@
     }
     a-scene .a-canvas {
       background: transparent !important;
+      touch-action: none;
     }
     .a-canvas,
     video {
@@ -67,63 +66,99 @@
       right: 0;
       bottom: 0;
       z-index: 100;
-      padding: 10px 14px 16px;
-      background: linear-gradient(transparent, rgba(0,0,0,.88));
+      padding: 10px 14px max(14px, env(safe-area-inset-bottom));
+      padding-left: max(14px, env(safe-area-inset-left));
+      padding-right: max(14px, env(safe-area-inset-right));
+      background: linear-gradient(transparent, rgba(0,0,0,.9));
       color: #fff;
       pointer-events: none;
       text-align: center;
     }
     #ar-status {
       position: fixed;
-      top: 10px;
+      top: max(10px, env(safe-area-inset-top));
       left: 50%;
       transform: translateX(-50%);
       z-index: 100;
-      max-width: 92vw;
-      padding: 8px 14px;
-      border-radius: 8px;
-      font-size: 0.9rem;
+      max-width: min(92vw, 28rem);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: clamp(0.8rem, 2.8vw, 0.95rem);
       font-weight: 600;
       text-align: center;
       pointer-events: none;
+      line-height: 1.3;
     }
     #ar-status.searching {
-      background: rgba(120, 40, 40, 0.92);
+      background: rgba(120, 40, 40, 0.94);
       color: #fff;
     }
     #ar-status.locked {
-      background: rgba(30, 100, 50, 0.92);
+      background: rgba(30, 100, 50, 0.94);
       color: #fff;
     }
-    #hud strong { font-size: 1.2rem; }
-    #hud p { margin: 5px 0 0; font-size: 0.82rem; opacity: 0.95; }
-    #hud a { color: #9cf; pointer-events: auto; }
+    #hud strong {
+      font-size: clamp(1.05rem, 4vw, 1.25rem);
+    }
+    #hud p {
+      margin: 6px 0 0;
+      font-size: clamp(0.78rem, 2.6vw, 0.88rem);
+      opacity: 0.96;
+      line-height: 1.4;
+    }
+    #hud a, #hud button {
+      color: #9cf;
+      pointer-events: auto;
+    }
+    #hud button {
+      margin-top: 8px;
+      padding: 10px 16px;
+      font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.35);
+      background: rgba(40, 90, 140, 0.55);
+      color: #fff;
+      cursor: pointer;
+    }
+    #hud button:active {
+      opacity: 0.88;
+    }
     #score { font-variant-numeric: tabular-nums; }
-    #hint { margin-top: 6px; font-size: 0.78rem; opacity: 0.88; }
+    #hint, #mode-line {
+      margin-top: 6px;
+      font-size: clamp(0.72rem, 2.4vw, 0.82rem);
+      opacity: 0.88;
+      line-height: 1.35;
+    }
+    #ar-root {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+    }
   </style>
 </head>
 <body>
-  <div id="ar-status" class="searching">Searching for Hiro marker…</div>
+  <div id="ar-status" class="searching">Starting camera…</div>
 
   <div id="hud">
     <strong>AR Soccer</strong>
-    <p>Print the <a href="https://jeromeetienne.github.io/AR.js/data/images/HIRO.jpg" target="_blank" rel="noopener">Hiro marker</a> (flat, bright). When the banner turns green, <strong>tap anywhere on the video</strong> to shoot that way on the pitch.</p>
+    <p>
+      Show the <strong>Hiro</strong> marker (print or open
+      <a href="marker-display.html">marker-display.html</a> on another screen).
+      When the top banner turns <strong>green</strong>, <strong>tap or click</strong> on the live video to shoot.
+    </p>
     <p>Goals: <span id="score">0</span> · Shots: <span id="shots">0</span></p>
-    <p id="hint">Still all black? Open <a href="dom-video.html" style="pointer-events:auto">dom-video.html</a> instead (other camera mode).</p>
+    <p id="mode-line"></p>
+    <button type="button" id="toggle-camera-mode">Switch camera mode &amp; reload</button>
+    <p id="hint">Black screen? Use the button above. No printer? Use a second device for the marker.</p>
   </div>
 
-  <!-- videoTexture:true + domBackground:false avoids black (do not force transparent clear on AR.js video pass) -->
-  <a-scene
-    embedded
-    vr-mode-ui="enabled: false"
-    ar-webcam-fix="domBackground: false"
-    renderer="logarithmicDepthBuffer: false; antialias: true; alpha: true"
-    arjs="trackingMethod: best; sourceType: webcam; videoTexture: true; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
-  >
+  <div id="ar-root"></div>
+
+  <template id="ar-scene-children">
     <a-assets>
       <a-mixin id="goal-post" geometry="primitive: cylinder; radius: 0.03; height: 0.34" material="color: #eaeaea; metalness: 0.15; roughness: 0.65"></a-mixin>
     </a-assets>
-
     <a-marker id="hiro-marker" preset="hiro" emitevents="true">
       <a-plane
         class="kick-plane"
@@ -133,7 +168,6 @@
         height="1"
         material="color: #2a8f47; roughness: 0.85; shader: flat"
       ></a-plane>
-
       <a-ring
         radius-inner="0.014"
         radius-outer="0.019"
@@ -141,7 +175,6 @@
         rotation="-90 0 0"
         material="color: #fff; opacity: 0.9; transparent: true; shader: flat"
       ></a-ring>
-
       <a-entity id="goal" position="0 0 -0.44">
         <a-box
           width="0.44"
@@ -154,7 +187,6 @@
         <a-entity mixin="goal-post" position="0.2 0.17 0"></a-entity>
         <a-box width="0.45" height="0.035" depth="0.03" position="0 0.34 0" material="color: #ddd; shader: flat"></a-box>
       </a-entity>
-
       <a-sphere
         id="ball"
         radius="0.045"
@@ -162,10 +194,66 @@
         material="color: #f8f8f8; roughness: 0.45; shader: flat"
       ></a-sphere>
     </a-marker>
-
     <a-entity camera></a-entity>
-  </a-scene>
+  </template>
 
+  <script>
+    (function () {
+      function isProbablyPhoneOrTablet() {
+        var ua = navigator.userAgent || "";
+        if (/Android|iPhone|iPad|iPod|Mobile|webOS|BlackBerry|IEMobile|Opera Mini/i.test(ua)) return true;
+        if (navigator.maxTouchPoints > 1 && /Macintosh/.test(ua)) return true;
+        return false;
+      }
+
+      function pickDomVideo() {
+        var q = new URLSearchParams(window.location.search).get("dom");
+        if (q === "1" || q === "true") return true;
+        if (q === "0" || q === "false") return false;
+        var s = localStorage.getItem("arSoccerDom");
+        if (s === "1") return true;
+        if (s === "0") return false;
+        return !isProbablyPhoneOrTablet();
+      }
+
+      var useDomVideo = pickDomVideo();
+      window.__AR_USE_DOM__ = useDomVideo;
+
+      var modeLine = document.getElementById("mode-line");
+      if (modeLine) {
+        modeLine.textContent = useDomVideo
+          ? "Camera mode: browser video (often best on PC / laptop webcams)."
+          : "Camera mode: WebGL (often best on phones).";
+      }
+
+      var scene = document.createElement("a-scene");
+      scene.setAttribute("embedded", "");
+      scene.setAttribute("vr-mode-ui", "enabled: false");
+      scene.setAttribute(
+        "ar-webcam-fix",
+        useDomVideo ? "domBackground: true" : "domBackground: false"
+      );
+      scene.setAttribute("renderer", "logarithmicDepthBuffer: false; antialias: true; alpha: true");
+      scene.setAttribute(
+        "arjs",
+        "trackingMethod: best; sourceType: webcam; videoTexture: " +
+          (useDomVideo ? "false" : "true") +
+          "; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
+      );
+
+      var tpl = document.getElementById("ar-scene-children");
+      scene.appendChild(document.importNode(tpl.content, true));
+
+      document.getElementById("ar-root").appendChild(scene);
+
+      document.getElementById("toggle-camera-mode").addEventListener("click", function () {
+        var next = !window.__AR_USE_DOM__;
+        localStorage.setItem("arSoccerDom", next ? "1" : "0");
+        window.location.href =
+          window.location.pathname + "?dom=" + (next ? "1" : "0");
+      });
+    })();
+  </script>
   <script src="game.js"></script>
 </body>
 </html>
